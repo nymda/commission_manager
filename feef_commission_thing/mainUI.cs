@@ -11,9 +11,9 @@ using System.Windows.Forms;
 
 namespace feef_commission_thing
 {
-    public partial class Form1 : Form
+    public partial class mainUI : Form
     {
-        public Form1()
+        public mainUI()
         {
             InitializeComponent();
         }
@@ -33,104 +33,89 @@ namespace feef_commission_thing
             done = 0;
             total = 0;
             money = 0;
-
-            for (int i = 0; i < dataGridView1.Rows.Count; i++)
+            for (int i = 0; i < MainTable.Rows.Count; i++)
             {
-                if(dataGridView1.Rows.Count == 0)
+                if(MainTable.Rows.Count == 0)
                 {
                     label3.Text = "TODO: 0";
                     label4.Text = "DONE: 0";
                     label5.Text = "DONE (%): 0%";
                     label6.Text = "MONEY: £0";
                 }
-
-                Console.WriteLine("2 " + (Convert.ToBoolean(dataGridView1.Rows[i].Cells[2].Value)));
-                Console.WriteLine("3 " + (Convert.ToBoolean(dataGridView1.Rows[i].Cells[3].Value)));
-                if (Convert.ToBoolean(dataGridView1.Rows[i].Cells[3].Value) == false)
+                if (Convert.ToBoolean(MainTable.Rows[i].Cells[3].Value) == false)
                 {
-                    Console.WriteLine("found false");
                     todo++;
                 }
-                if (Convert.ToBoolean(dataGridView1.Rows[i].Cells[3].Value) == true)
+                if (Convert.ToBoolean(MainTable.Rows[i].Cells[3].Value) == true)
                 {
                     done++;
                 }
                 total++;
-
                 string[] o = data[i].Split(':');
-
                 money = money + Convert.ToInt32(o[1]);
-
-                Console.WriteLine(todo);
-                Console.WriteLine(done);
-                Console.WriteLine(total);
-
                 label3.Text = "TODO: " + todo.ToString();
                 label4.Text = "DONE: " + done.ToString();
-
                 if (!(done == 0))
                 {
                     label5.Text = "DONE (%): " + ((done * 100 / total * 100) / 100).ToString() + "%"; //maff
                     percentage = done / total;
-                    Console.WriteLine(percentage);
                 }
-
                 label6.Text = "MONEY: £" + money;
             }
-
-
-            Console.WriteLine("\n\n\n\n");
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            dataGridView1.ColumnCount = 2;
-            dataGridView1.Columns[0].Name = "Name";
-            dataGridView1.Columns[1].Name = "Price";
-            string[] row = new string[] { textBox1.Text, numericUpDown1.Value.ToString() };
-            dataGridView1.Rows.Add(row);
+            Random rand = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            string id = new string(Enumerable.Repeat(chars, 5).Select(s => s[rand.Next(s.Length)]).ToArray());
+       
+            MainTable.ColumnCount = 2;
+            MainTable.Columns[0].Name = "Name";
+            MainTable.Columns[1].Name = "Price";
+            string[] row = new string[] { NameTxtBox.Text, PriceNumeric.Value.ToString() };
+            MainTable.Rows.Add(row);
 
             DataGridViewCheckBoxColumn chk = new DataGridViewCheckBoxColumn();
             DataGridViewCheckBoxColumn chk2 = new DataGridViewCheckBoxColumn();
-            dataGridView1.Columns.Add(chk);
-            dataGridView1.Columns.Add(chk2);
+            MainTable.Columns.Add(chk);
+            MainTable.Columns.Add(chk2);
             chk.HeaderText = "Sketched";
             chk2.HeaderText = "Complete";
             chk.Name = "chk";
             chk2.Name = "chk2";
 
             DataGridViewButtonColumn btn = new DataGridViewButtonColumn();
-            dataGridView1.Columns.Add(btn);
+            MainTable.Columns.Add(btn);
             btn.HeaderText = "Remove";
             btn.Text = "Remove";
             btn.Name = "btn";
             btn.UseColumnTextForButtonValue = true;
 
-            data.Add(textBox1.Text + ":" + numericUpDown1.Value.ToString() + ":" + "False" + ":" + "False");
+            data.Add(NameTxtBox.Text + ":" + PriceNumeric.Value.ToString() + ":" + "False" + ":" + "False" + id);
 
             File.WriteAllLines(datpath, data);
 
-            for (int i = 0; i < dataGridView1.Rows.Count; i++)
+            for (int i = 0; i < MainTable.Rows.Count; i++)
             {
                 string[] o = data[i].Split(':');
 
                 if (o[2] == "True")
                 {
-                    Console.WriteLine(o[2]);
-                    dataGridView1.Rows[i].Cells[2].Value = true;
+                    MainTable.Rows[i].Cells[2].Value = true;
                 }
                 if (o[2] == "False")
                 {
-                    dataGridView1.Rows[i].Cells[2].Value = false;
+                    MainTable.Rows[i].Cells[2].Value = false;
                 }
 
                 if (o[3] == "True")
                 {
-                    dataGridView1.Rows[i].Cells[3].Value = true;
+                    MainTable.Rows[i].Cells[3].Value = true;
                 }
                 if (o[3] == "False")
                 {
-                    dataGridView1.Rows[i].Cells[3].Value = false;
+                    MainTable.Rows[i].Cells[3].Value = false;
                 }
             }
         }
@@ -142,31 +127,28 @@ namespace feef_commission_thing
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-
-            //i seriously have no fucking clue whats going on here
-
             try
             {
                 if(e.ColumnIndex == 4)
                 {
-                    dataGridView1.Rows.RemoveAt(e.RowIndex);
+                    MainTable.Rows.RemoveAt(e.RowIndex);
                     data.RemoveAt(e.RowIndex);
                     File.WriteAllLines(datpath, data);
                 }
                 if (e.ColumnIndex == 3)
                 {
-                    dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = !(Convert.ToBoolean(dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value));
+                    MainTable.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = !(Convert.ToBoolean(MainTable.Rows[e.RowIndex].Cells[e.ColumnIndex].Value));
                     string[] tdata = data[e.RowIndex].Split(':');
-                    tdata[3] = (Convert.ToBoolean(dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value).ToString());
+                    tdata[3] = (Convert.ToBoolean(MainTable.Rows[e.RowIndex].Cells[e.ColumnIndex].Value).ToString());
                     data[e.RowIndex] = string.Join(":", tdata);
                     File.WriteAllLines(datpath, data);
 
                 }
                 if (e.ColumnIndex == 2)
                 {
-                    dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = !(Convert.ToBoolean(dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value));
+                    MainTable.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = !(Convert.ToBoolean(MainTable.Rows[e.RowIndex].Cells[e.ColumnIndex].Value));
                     string[] tdata = data[e.RowIndex].Split(':');
-                    tdata[2] = (Convert.ToBoolean(dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value).ToString());
+                    tdata[2] = (Convert.ToBoolean(MainTable.Rows[e.RowIndex].Cells[e.ColumnIndex].Value).ToString());
                     data[e.RowIndex] = string.Join(":", tdata);
                     File.WriteAllLines(datpath, data);
                 }
@@ -180,9 +162,6 @@ namespace feef_commission_thing
         private void Form1_Load(object sender, EventArgs e)
         {
             timer1.Start();
-
-
-
             if (File.Exists(datpath))
             {
                 data = File.ReadAllLines(datpath).ToList();
@@ -192,40 +171,40 @@ namespace feef_commission_thing
             {
                 startcounter++;
                 startcounter = startcounter - 1;
-                dataGridView1.ColumnCount = 2;
-                dataGridView1.Columns[0].Name = "Name";
-                dataGridView1.Columns[1].Name = "Price";
+                MainTable.ColumnCount = 2;
+                MainTable.Columns[0].Name = "Name";
+                MainTable.Columns[1].Name = "Price";
 
                 string[] o = i.Split(':');
 
                 string[] row = new string[] { o[0], o[1], "", "" };
 
-                dataGridView1.Rows.Add(row);
+                MainTable.Rows.Add(row);
 
                 DataGridViewCheckBoxColumn chk = new DataGridViewCheckBoxColumn();
                 DataGridViewCheckBoxColumn chk2 = new DataGridViewCheckBoxColumn();
-                dataGridView1.Columns.Add(chk);
-                dataGridView1.Columns.Add(chk2);
+                MainTable.Columns.Add(chk);
+                MainTable.Columns.Add(chk2);
                 chk.HeaderText = "Sketched";
                 chk2.HeaderText = "Complete";
                 chk.Name = "chk";
                 chk2.Name = "chk2";
 
                 DataGridViewButtonColumn btn = new DataGridViewButtonColumn();
-                dataGridView1.Columns.Add(btn);
+                MainTable.Columns.Add(btn);
                 btn.HeaderText = "Remove";
                 btn.Text = "Remove";
                 btn.Name = "btn";
                 btn.UseColumnTextForButtonValue = true;
             }
 
-            for (int i = 0; i < dataGridView1.Rows.Count; i++)
+            for (int i = 0; i < MainTable.Rows.Count; i++)
             {
-                if (Convert.ToBoolean(dataGridView1.Rows[i].Cells[2].Value) == false)
+                if (Convert.ToBoolean(MainTable.Rows[i].Cells[2].Value) == false)
                 {
                     todo++;
                 }
-                if (Convert.ToBoolean(dataGridView1.Rows[i].Cells[3].Value) == true)
+                if (Convert.ToBoolean(MainTable.Rows[i].Cells[3].Value) == true)
                 {
                     done++;
                 }
@@ -237,29 +216,26 @@ namespace feef_commission_thing
                 if (!(done == 0))
                 {
                     label5.Text = "DONE (%) " + ((done * 100 / total * 100) / 100).ToString() + "%"; //maff
-                    percentage = done / total;
-                    Console.WriteLine(percentage);
                 }
 
                 string[] o = data[i].Split(':');
 
                 if (o[2] == "True")
                 {
-                    Console.WriteLine(o[2]);
-                    dataGridView1.Rows[i].Cells[2].Value = true;
+                    MainTable.Rows[i].Cells[2].Value = true;
                 }
                 if (o[2] == "False")
                 {
-                    dataGridView1.Rows[i].Cells[2].Value = false;
+                    MainTable.Rows[i].Cells[2].Value = false;
                 }
 
                 if (o[3] == "True")
                 {
-                    dataGridView1.Rows[i].Cells[3].Value = true;
+                    MainTable.Rows[i].Cells[3].Value = true;
                 }
                 if (o[3] == "False")
                 {
-                    dataGridView1.Rows[i].Cells[3].Value = false;
+                    MainTable.Rows[i].Cells[3].Value = false;
                 }
             }
         }
@@ -267,11 +243,6 @@ namespace feef_commission_thing
         private void timer1_Tick(object sender, EventArgs e)
         {
             updateStats();
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }
